@@ -8,21 +8,22 @@
 #import "NRSimplePlist.h"
 
 @implementation NRSimplePlist
-
-
 //Estrae un valore dalla plist passata come primo parametro
 + (id)valorePlist:(NSString *)nomeFile conChiave:(NSString*)chiave {
-    
-    NSString *plistError;
+    NSError* plistError;
     NSPropertyListFormat format;
     
     NSString *localizedPath = [[NSBundle mainBundle] pathForResource:nomeFile ofType:@"plist"];
     NSData *plistData = [NSData dataWithContentsOfFile:localizedPath];
     
-    id plist = [NSPropertyListSerialization propertyListFromData:plistData mutabilityOption:NSPropertyListImmutable format:&format errorDescription:&plistError];
+    id plist = [NSPropertyListSerialization propertyListWithData:plistData
+                                                         options:NSPropertyListImmutable
+                                                          format:&format
+                                                           error:&plistError];
+
     if (!localizedPath) {
-        NSLog(@"NRSimplePlist - Errore LETTURA file plist '%s', errore = '%s'", [localizedPath UTF8String], [plistError UTF8String]);
-        NSLog(@"NRSimplePlist - Error READING plist file '%s', error = '%s'", [localizedPath UTF8String], [plistError UTF8String]);
+        NSLog(@"NRSimplePlist - Errore LETTURA file plist '%s', errore = '%@'", [localizedPath UTF8String], [plistError localizedDescription]);
+        NSLog(@"NRSimplePlist - Error READING plist file '%s', error = '%@'", [localizedPath UTF8String], [plistError localizedDescription]);
     }
     
     return [(NSArray *)plist valueForKey:chiave];
@@ -56,8 +57,7 @@
             NSLog(@"Errore nella modifica plist: nessun parametro valido passato!");
             NSLog(@"Error editing plist file: no valid parameter sended!");
         }
-        
-        
+
         [tempPlist setObject:valoreTemp forKey:chiave];
         [tempPlist writeToFile:localizedPath atomically:YES];
     } else {
@@ -188,8 +188,6 @@
     }
 }
 
-
-
 //ENGLISH
 //Fetch
 +(id)valuePlist:(NSString *)plistName withKey:(NSString*)key{
@@ -223,5 +221,4 @@
 +(void)editDictionaryPlist:(NSString *)plistName withKey:(NSString*)key andDictionary:(NSDictionary*)dictionary{
     [self modificaDictionaryPlist:plistName conChiave:key eDictionary:dictionary];
 }
-
 @end
